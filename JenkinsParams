@@ -1,12 +1,10 @@
 REGISTRY_URL=841964127262.dkr.ecr.us-east-1.amazonaws.com
 REGISTRY_NAME=ecr-transferencias
-SLACK_CHANNEL=ci-cd-tef
 EKS_CLUSTER_DEV=EKS-BR-DEV-TEF-CLUSTER-03
 EKS_CLUSTER_PP=
 EKS_CLUSTER_PROD=
 DOCKERFILE_PATH=Dockerfile
-PROJECT_NAME=transferencia-electronica-de-fondos
-AUDITING_URL=https://devops-auditing.bancoripley.cl/sd-auditing-cicd/v1.0.0/auditing/jenkins
+PROJECT_NAME=test-banco-ripley
 PROJECT_KEY=TEF
 SCAN_SOURCE=src
 SCAN_EXCLUDE_FILES=src/test/**
