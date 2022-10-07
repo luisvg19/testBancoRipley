@@ -1,0 +1,47 @@
+name: Release Prod
+on:
+  push:
+    branches:
+      - 'feature/*'
+  workflow_dispatch:
+
+jobs:
+    pipeline:
+        runs-on: ubuntu-latest
+        timeout-minutes: 25
+        env:
+            AWS_REPO_URL: public.ecr.aws/k9l7o7t8
+            AWS_REPO_NAME: ecr-test
+            TAG: 1.0.0
+            EKS_CLUSTER: PruebaIngresoBR
+            K8S_MANIFESTS: ./k8s
+            DOCKER_BUILDKIT: 1
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                node-version: '14'
+            - uses: actions/setup-python@v2
+              with:
+                python-version: '3.x'
+            - uses: aws-actions/configure-aws-credentials@v1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: us-east-1
+            - name: Login to Amazon ECR Public
+              id: login-ecr-public
+              uses: aws-actions/amazon-ecr-login@v1
+              with:
+                registry-type: public
+            - name: Build and push docker image
+              run: |
+                  docker build -t ${{ env.AWS_REPO_NAME }}:latest .
+                  docker tag ${{ env.AWS_REPO_NAME }}:latest ${{ env.AWS_REPO_URL }}/${{ env.AWS_REPO_NAME }}:${{ env.TAG}}
+                  docker push ${{ env.AWS_REPO_URL }}/${{ env.AWS_REPO_NAME }}:${{ env.TAG}}
+            - name: Connect to EKS Cluster
+              run: |
+                  aws eks update-kubeconfig --region us-east-1 --name ${{ env.EKS_CLUSTER}}
+            - name: Deploy Hello World
+              run: |
+                  kubectl apply -f ${{ env.K8S_MANIFESTS}}/
